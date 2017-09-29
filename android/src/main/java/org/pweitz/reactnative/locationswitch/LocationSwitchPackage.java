@@ -12,7 +12,8 @@ import java.util.List;
 
 public class LocationSwitchPackage implements ReactPackage {
 
-    @Override
+    //@Override
+    //deprecated by RN0.47
     public List<Class<? extends JavaScriptModule>> createJSModules() {
         return Collections.emptyList();
     }
