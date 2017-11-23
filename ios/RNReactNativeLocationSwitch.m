@@ -12,6 +12,9 @@
 }
 RCT_EXPORT_MODULE()
 
+- (NSString *)getSystemVersion {
+    return [UIDevice currentDevice].systemVersion;
+}
 
 RCT_REMAP_METHOD(enableLocationService,
                  onPermissionGiven:(RCTResponseSenderBlock)successCallback
@@ -20,16 +23,22 @@ RCT_REMAP_METHOD(enableLocationService,
     CLAuthorizationStatus status = [CLLocationManager authorizationStatus];
 
     if (![CLLocationManager locationServicesEnabled]) {
-        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"App-Prefs:root=Privacy&path=LOCATION"] options:@{}
-                                 completionHandler:^(BOOL success) {}];
+        if ([self getSystemVersion].doubleValue >= 10.0) {
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"App-Prefs:root=Privacy&path=LOCATION"] options:@{}
+                                     completionHandler:^(BOOL success) {}];
+        } else {
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"App-Prefs:root=Privacy&path=LOCATION"]];
+        }
 
     } else if (status == kCLAuthorizationStatusDenied) {
         NSLog(@"Location Services Disabled");
-        
-        // show location settings
-        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString] options:@{}
-                                 completionHandler:^(BOOL success) {}];
-
+        if ([self getSystemVersion].doubleValue >= 10.0) {
+            // show location settings
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString] options:@{}
+                                     completionHandler:^(BOOL success) {}];
+        } else {
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
+        }
     } else {
         NSLog(@"Location Services Enabled");
         successCallback(@[[NSNull null]]);
